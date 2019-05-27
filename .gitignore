@@ -1,0 +1,5 @@
+# sql databases
+db.sqlite3
+
+# uploaded files
+log/upload/*
