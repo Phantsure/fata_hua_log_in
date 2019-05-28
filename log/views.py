@@ -1,7 +1,9 @@
 from django.shortcuts import render
-from django.http import request, HttpResponse
+from django.http import request, HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from lxml import etree
 import xml.etree.ElementTree as xml
+import os
 
 from .forms import BlogForm
 from .functions import handle_uploaded_file
@@ -59,9 +61,22 @@ def blog(request):
 def saved_blog(request, given_title):
     for blog in Blogs.objects.all():
         if blog.blog_titles == given_title:
-            parser = etree.XMLParser(load_dtd=True, resolve_entities=True)
-            tree = etree.parse('log/upload/{}.xml'.format(given_title), parser=parser)
-            # extraction of information
-            root = tree.getroot()
-            return HttpResponse("{}<br>{}<br>{}".format(root[0][0].text, root[0][1].text, root[0][2].text))
+            if(request.GET.get('DeleteButton')):
+                return HttpResponseRedirect(reverse('log:delete_saved_blog', args=(given_title,)))
+            else:
+                parser = etree.XMLParser(load_dtd=True, resolve_entities=True)
+                tree = etree.parse('log/upload/{}.xml'.format(given_title), parser=parser)
+                # extraction of information
+                root = tree.getroot()
+                return render(request,'log/saved_blog.html', {'blog_title':root[0][0].text, 'blog_content':root[0][1].text, 'blog_author':root[0][2].text})
     return HttpResponse("will show saved blogs of title:{}".format(given_title))
+
+# solve delete problem
+
+def delete_saved_blog(request, given_title):
+    for blog in Blogs.objects.all():
+        if blog.blog_titles == given_title:
+            blog.delete()
+            os.remove('log/upload/{}.xml'.format(given_title))
+            return HttpResponse("blog with title:{} is deleted".format(given_title))
+    return HttpResponse("blog with title:{} might be deleted".format(given_title))
