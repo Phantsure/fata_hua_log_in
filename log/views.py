@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import request, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from lxml import etree
@@ -12,7 +12,15 @@ from .models import Blogs
 # Create your views here.
 
 def index(request):
-    return HttpResponse("this is index page")
+    return HttpResponse("this is index page. go to log/blog for blog or go to log/cat to see cats")
+
+def cat(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        # print(title)
+        delete_saved_blog(request, given_title=title)
+        return redirect('https://www.google.com/search?q=cats')
+    return render(request, 'log/cat.html')
 
 def blog(request):
     if request.method == 'POST':
@@ -79,5 +87,5 @@ def delete_saved_blog(request, given_title):
         if blog.blog_titles == given_title:
             blog.delete()
             os.remove('log/upload/{}.xml'.format(given_title))
-            return HttpResponse("blog with title:{} is deleted".format(given_title))
-    return HttpResponse("blog with title:{} might be deleted".format(given_title))
+            return render(request, 'log/deleted_blog.html', {'given_title':given_title})
+    return render(request, 'log/deleted_blog.html', {'given_title':given_title})
