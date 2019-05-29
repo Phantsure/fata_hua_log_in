@@ -61,7 +61,8 @@ def blog(request):
 def saved_blog(request, given_title):
     for blog in Blogs.objects.all():
         if blog.blog_titles == given_title:
-            if(request.GET.get('DeleteButton')):
+            print(request.GET.get('deleteButton'))
+            if(request.GET.get('deleteButton')):
                 return HttpResponseRedirect(reverse('log:delete_saved_blog', args=(given_title,)))
             else:
                 parser = etree.XMLParser(load_dtd=True, resolve_entities=True)
